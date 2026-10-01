@@ -1,0 +1,79 @@
+<header class="topbar">
+  <span class="brand">SkillUp <em>live-demo</em></span>
+  <span class="topic">Обновление политик без даунтайма — hot reload версий</span>
+</header>
+
+<main>
+  <section class="card">
+    <h2>1. Кто запрашивает доступ</h2>
+    <div class="row">
+      <select (change)="selectAccount(accountInput.value)" #accountInput>
+        <option *ngFor="let a of accounts" [value]="a.username">{{ a.label }}</option>
+      </select>
+      <button class="ghost" (click)="login()">▶ Войти и обновить политики</button>
+    </div>
+    <div class="who" *ngIf="currentUser()">
+      Пользователь: <b>{{ currentUser() }}</b> · роль: <b>{{ role() }}</b>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Тестовый запрос (PEP → PDP)</h2>
+    <div class="docs">
+      <button
+        *ngFor="let d of docs"
+        class="doc"
+        [class.denied]="docResults()[d.id] && !docResults()[d.id].ok"
+        [class.ok]="docResults()[d.id] && docResults()[d.id].ok"
+        (click)="loadDocument(d)"
+      >
+        <span class="doc-title">{{ d.title }}</span>
+        <span class="doc-meta">doc #{{ d.id }} · отдел «{{ d.department }}»</span>
+        <span class="doc-result" *ngIf="docResults()[d.id]">{{ docResults()[d.id].text }}</span>
+      </button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. Версии политик (PDP)</h2>
+    <div class="row">
+      <button class="ghost" (click)="createVersion()">✚ Создать staged-версию (viewer закрыть finance)</button>
+      <button class="accent" (click)="activateStaged()">⚡ Активировать staged-версию</button>
+      <button class="ghost" (click)="rollback()">↩ Откат</button>
+    </div>
+
+    <div *ngIf="policyMsg()" class="flash">{{ policyMsg() }}</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Версия</th>
+          <th>Статус</th>
+          <th>Описание</th>
+          <th>Правила</th>
+          <th>Создана</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let v of versions()" [class.active-row]="v.id === activeId()">
+          <td>v{{ v.id }}</td>
+          <td>
+            <span class="badge" [class.active]="v.status === 'active'">{{ v.status }}</span>
+          </td>
+          <td>{{ v.description }}</td>
+          <td>
+            <span *ngFor="let r of v.rules" class="rule">{{
+              r.role ? (r.role + '@' + r.department) : 'any'
+            }}: {{ r.action }} → {{ r.allow ? 'ALLOW' : 'DENY' }}</span>
+          </td>
+          <td>{{ v.createdAt }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <footer class="hint">
+    Решения вычисляются на каждом запросе — активная версия читается из памяти PDP. Смена версии не требует
+    рестарта ни одного сервиса.
+  </footer>
+</main>

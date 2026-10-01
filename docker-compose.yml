@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  pdp:
+    build: ./pdp
+    ports:
+      - "50050:50050"
+      - "3001:3001"
+    environment:
+      - JWT_SECRET=super-secret-key
+
+  bff:
+    build: ./bff
+    ports:
+      - "3000:3000"
+    environment:
+      - PDP_SERVICE_URL=pdp:50050
+      - PDP_HTTP_URL=http://pdp:3001
+      - JWT_SECRET=super-secret-key
+    depends_on:
+      - pdp
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - bff

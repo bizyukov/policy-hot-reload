@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package pdp;
+
+service PDPService {
+  rpc CheckAccess (CheckAccessRequest) returns (CheckAccessResponse);
+}
+
+message CheckAccessRequest {
+  string subjectId = 1;
+  string role = 2;
+  string department = 3;
+  string action = 4;
+  string resourceType = 5;
+  string resourceOwnerDepartment = 6;
+}
+
+message CheckAccessResponse {
+  bool allowed = 1;
+  string reason = 2;
+  int32 policyVersion = 3;
+}
